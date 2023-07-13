@@ -1,131 +1,26 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
-
-    public enum UIAnimationTypes
-    {
-        Move,
-        Scale,
-        ScaleX,
-        ScaleY,
-        Fade
-    }
-
-public class UITweener : MonoBehaviour
+namespace Root
 {
-    public GameObject objctToAnimate;
-
-    public UIAnimationTypes animationType;
-    public LeanTweenType easeType;
-    public float duration;
-    public float delay;
-
-    public bool loop;
-    public bool pingpong;
-
-    public bool startPositionOffset;
-    public Vector3 from;
-    public Vector3 to;
-
-    private LTDescr _tweenObject;
-
-    public bool showOnEnable;
-    public bool workOnDisable;
-
-    public void OnEnable()
+    public class UITweener : MonoBehaviour
     {
-        if (showOnEnable)
+        public void StartGame(int num)
         {
-            Show();
-        }
-    }
-
-    public void Show()
-    {
-        HandleTween();
-    }
-    public void HandleTween()
-    {
-        if (objctToAnimate == null)
-        {
-            objctToAnimate = gameObject;
-        }
-        switch (animationType)
-        {
-            case UIAnimationTypes.Fade:
-                Fade();
-                break;
-            case UIAnimationTypes.Move:
-                MoveAbsolute();
-                break;
-            case UIAnimationTypes.Scale:
-                Scale();
-                break;
-            case UIAnimationTypes.ScaleX:
-                Scale();
-                break;
-            case UIAnimationTypes.ScaleY:
-                Scale();
-                break;
-        }
-        _tweenObject.setDelay(delay);
-        _tweenObject.setEase(easeType);
-        if (loop)
-        {
-            _tweenObject.loopCount = int.MaxValue;
-        }
-        if (pingpong)
-        {
-            _tweenObject.setLoopPingPong();
-        }
-    }
-
-    public void Fade()
-    {
-        if (gameObject.GetComponent<CanvasGroup>() == null)
-        {
-            gameObject.AddComponent<CanvasGroup>();
+            SceneManager.LoadSceneAsync(num);
         }
 
-        if (startPositionOffset)
+        public void SettingsGame()
         {
-            objctToAnimate.GetComponent<CanvasGroup>().alpha = from.x;
+            Debug.Log("SETTINGS GAME LOAD");
         }
-        _tweenObject = LeanTween.alphaCanvas(objctToAnimate.GetComponent<CanvasGroup>(), to.x, duration);
-    }
-    public void MoveAbsolute()
-    {
-        objctToAnimate.GetComponent<RectTransform>().anchoredPosition = from;
-        _tweenObject = LeanTween.move(objctToAnimate.GetComponent<RectTransform>(), to, duration);
-    }
-    public void Scale()
-    {
-        if (startPositionOffset)
+
+        public void ExitGame()
         {
-            objctToAnimate.GetComponent<RectTransform>().localScale = from;
+            Application.Quit();
         }
-        _tweenObject = LeanTween.scale(objctToAnimate, to, duration);
     }
-
-    void SwapDirection()
-    {
-        var temp = from;
-        from = to;
-        to = temp;
-    }
-    public void Disable()
-    {
-        SwapDirection();
-        HandleTween();
-        _tweenObject.setOnComplete(() =>
-        {
-            SwapDirection();
-            gameObject.SetActive(false);
-        });
-    }
-
-   
-
 }
