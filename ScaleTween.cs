@@ -1,44 +1,70 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
-namespace Root
+public class AnimRectTransform : MonoBehaviour
 {
-    public class ScaleTween : MonoBehaviour
+    private RectTransform rectTransform;
+    [Space(20)]
+    [Header("Ajustes (1)")]
+    public LeanTweenType inType;
+    public LeanTweenType outType;
+    public float duration;
+    public float delay;
+    [Space(20)]
+    [Header("Posicion Inicial (2)")]
+    public Vector3 escalaIncial = new Vector3 (0f, 0f, 0f);
+    public Vector3 transformInicial = new Vector3(0f, 0f, 0f);
+    [Space(20)]
+    [Header("Pocision Final (3)")]
+    public Vector3 escalaFinal = new Vector3(1f, 1f, 1f);
+    public Vector3 transformFinal = new Vector3(0f, 0f, 0f);
+    public enum TipoMovimiento
     {
-        public LeanTweenType inType;
-        public LeanTweenType outType;
-        public float duration;
-        public float delay;
-        public UnityEvent onCompleteCallback;
-        public Vector3 escala = new Vector3(1f,1f,1f);
-
-        public void OnEnable()
+        MovTrans,
+        MoveScale
+    }
+    [Space(20)]
+    [Header("Tipo de movimiento (4)")]
+    public TipoMovimiento CanMove;
+    [Space(20)]
+    [Header("OnComplete (5)")]
+    [Space(10)]
+    public UnityEvent onCompleteCallback;
+    private void Awake()
+    {
+        rectTransform = GetComponent<RectTransform>();
+    }
+    public void OnEnable()
+    {
+        switch (CanMove)
         {
-            transform.localScale = new Vector3(0, 0, 0);
-            LeanTween.scale(gameObject, new Vector3(escala.x, escala.y, escala.z), duration).setDelay(delay).setEase(inType).setOnComplete(OnComplete);
+            case TipoMovimiento.MoveScale:
+                rectTransform.localScale = new Vector3(escalaIncial.x, escalaIncial.y, escalaIncial.z);
+                MoveScale();
+                break;
+            case TipoMovimiento.MovTrans:
+                rectTransform.position = new Vector3(transformInicial.x, transformInicial.y, transformInicial.z);
+                MoveTransform();
+                break;
         }
-        public void OnComplete()
-        {
-            if(onCompleteCallback != null)
-            {
-                onCompleteCallback.Invoke();
-            }
-        }
+    }
 
-
-
-        public void OnClose()
+    public void MoveScale()
+    {
+        LeanTween.scale(rectTransform, escalaFinal, duration).setDelay(delay).setEase(inType).setOnComplete(OnComplete);
+    }
+    public void MoveTransform()
+    {
+        LeanTween.move(rectTransform,transformFinal,duration).setDelay(delay).setEase(inType).setOnComplete(OnComplete);
+    }
+    public void OnComplete()
+    {
+        if (onCompleteCallback != null)
         {
-            //LeanTween.scale(gameObject,new Vector3(0,0,0), 0.5f).setOnComplete(DestroyMe);
-            LeanTween.moveX(gameObject, -1500, duration).setDelay(delay).setEase(outType).setOnComplete(DestroyMe);
-        }
-        void DestroyMe()
-        {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-            Destroy(gameObject);
+            onCompleteCallback.Invoke();
         }
     }
 }
